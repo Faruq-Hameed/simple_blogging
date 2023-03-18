@@ -1,27 +1,4 @@
-const doesNameOrEmailAlreadyExit = async (User,req) => {
-    const existingName = await User.findOne({ name: req.body.name.toLowerCase() })
-    if (existingName) {
-        return {status: 409, message: `user with the name ${existingName.name} already exist`}
-    }
-    const existingEmail = await User.findOne({ email: req.body.email.toLowerCase() })
-    if (existingEmail) {
-        return {status: 409, message: `user with the email ${existingEmail.email} already exist`}
-    }
-}
+const {paginate, paginationError} = require('./paginate')
+const {doesNameOrEmailAlreadyExit} = require('./errors')
 
-function firstPromise() {
-    return new Promise(function (resolve, reject) {
-        const checkIfInfoExist = async () => {
-            const existingName = User.findOne({ name: req.body.name.toLowerCase() })
-            const existingEmail = User.findOne({ name: req.body.email.toLowerCase() })
-            if (existingName) {
-                reject(new Error({ status: 409, message: `user with the name ${existingName.name} already exist` }));
-            }
-            if (existingEmail) {
-                reject(new Error({ status: 409, message: `user with the email ${existingEmail.name} already exist` }))
-            }
-        }
-    });
-}
-
-module.exports = {doesNameOrEmailAlreadyExit}
+module.exports = {paginate, paginationError,doesNameOrEmailAlreadyExit}
