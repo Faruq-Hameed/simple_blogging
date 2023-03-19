@@ -24,4 +24,15 @@ function firstPromise() {
     });
 }
 
+//checking if the user._id exists in the database
+// const doesUserExist = async (model, id) => {
+//     const user = await model.findById(id)
+//     if (user) {
+//         return user;
+//     }
+//     user.error = true;
+// }
+
+//checking if the user._id exists in the database
+
 module.exports = {doesNameOrEmailAlreadyExit}

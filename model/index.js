@@ -15,7 +15,10 @@ const userSchema = new mongoose.Schema({
         ref: "Blog",
         required: true
     }]
-});
+},
+    { timestamps: true }
+
+);
 
 const blogSchema = new mongoose.Schema({
     title: {
@@ -36,7 +39,9 @@ const blogSchema = new mongoose.Schema({
         ref: "Comment",
         required: true
     }]
-})
+},
+    { timestamps: true }
+)
 
 const commentSchema = new mongoose.Schema({
     user: {
@@ -51,7 +56,9 @@ const commentSchema = new mongoose.Schema({
         type: String,
         required: true
     }
-})
+},
+    { timestamps: true }
+)
 
 
 const User = mongoose.model("User", userSchema);

@@ -69,7 +69,29 @@ router.get('/', (req, res)=>{
 })
 
 router.get('/:id', (req, res)=>{
+    let showBlogs = req.query.showBlogs 
     User.findById(req.params.id)
+    .populate('blogs', 'title comments').exec()
+    .then(user => {
+        if(!user) {
+            res.status(404).json({message: 'no user found'})
+            return;
+        }
+        if (showBlogs === "false") {
+            const totalBlogs= user.blogs.length
+            res.status(200).json({name: user.name, email: user.email, totalBlogs: totalBlogs})
+            return
+        }
+        res.status(200).json({user})
+    })
+    .catch(err =>{
+        return res.status(500).json({message: err.message})
+    })
+})
+
+router.get('/:id/blogs', (req, res)=>{
+    User.findById(req.params.id)
+    .populate('blogs', 'title').exec()
     .then(user => {
         if(!user) {
             res.status(404).json({message: 'no user found'})
@@ -90,7 +112,7 @@ router.put('/:id', (req, res) => {
                 res.status(404).json({ message: 'no user found' })
             return;
         }
-        res.status(200).json({user}) //needed to pass correct option so that updated information are returned
+        res.status(200).json({message : "update successful"}) //needed to pass correct option so that updated information are returned
     })
     .catch(err =>{
         return res.status(500).json({message: err.message})

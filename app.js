@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 require('dotenv').config({path: './.env'})
 
-const {users} = require ('./routes')
+const {users, blogs} = require ('./routes')
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -24,6 +24,8 @@ app.use(helmet())
 
 //router level middlewares usage
 app.use('/users', users )
+app.use('/blogs', blogs )
+
 
 
 //invalid url global middleware
