@@ -32,7 +32,7 @@ router.post('/', (req, res) => {
  
 // get all blog posts
  router.get('/', (req, res)=>{
-    Blog.find()
+    Blog.find().limit(2)
      .then(blogs => {
         if(blogs.length == 0){
             res.status(204).send();
@@ -45,19 +45,6 @@ router.post('/', (req, res) => {
      })
  })
  
-//  router.get('/:id', (req, res)=>{
-//     Blog.findById("64130e4ab4fd3988dc353c20")
-//     .populate("postedBy")
-//      .then(posts => {
-//         if(!posts){
-//             return res.status(404).json({message: "Not Found"});
-//         }
-//          res.status(200).json({message: "all posts", posts: posts})
-//      })
-//      .catch(err =>{
-//          res.status(404).json({message: err.message})
-//      })
-//  })
 
 //get a particular blog post with the given id
  router.get('/:id', (req, res)=>{
@@ -73,6 +60,8 @@ router.post('/', (req, res) => {
          res.status(404).json({message: err.message})
      })
  })
+
+ 
  
 
  module.exports = router

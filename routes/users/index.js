@@ -1,7 +1,7 @@
 const express = require( "express")
 const mongoose = require( "mongoose");
 const {User, Blog, Comment} = require('../../model')
-const {doesNameOrEmailAlreadyExit, paginate, paginationError} = require ('../../controller')
+const {doesNameOrEmailAlreadyExit, paginate, paginationError} = require('../../utils')
 const router = express.Router()
 
 
@@ -70,8 +70,10 @@ router.get('/', (req, res)=>{
 
 router.get('/:id', (req, res)=>{
     let showBlogs = req.query.showBlogs 
+    console.log('code ran here....')
     User.findById(req.params.id)
-    .populate('blogs', 'title comments').exec()
+    .populate('blogs', 'title comments')
+    .exec()
     .then(user => {
         if(!user) {
             res.status(404).json({message: 'no user found'})
