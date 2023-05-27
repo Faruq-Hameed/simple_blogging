@@ -1,7 +1,7 @@
 const express = require( "express")
 const mongoose = require( "mongoose");
-const {User, Blog, Comment} = require('../../model')
-const {validatedBlogSchema} = require('../../controller')
+const {User, Blog, Comment} = require('../../src/model')
+const {validatedBlogSchema} = require('../../src/utils')
 const router = express.Router()
 
 
@@ -32,7 +32,7 @@ router.post('/', (req, res) => {
  
 // get all blog posts
  router.get('/', (req, res)=>{
-    Blog.find()
+    Blog.find().limit(2)
      .then(blogs => {
         if(blogs.length == 0){
             res.status(204).send();
@@ -45,19 +45,6 @@ router.post('/', (req, res) => {
      })
  })
  
-//  router.get('/:id', (req, res)=>{
-//     Blog.findById("64130e4ab4fd3988dc353c20")
-//     .populate("postedBy")
-//      .then(posts => {
-//         if(!posts){
-//             return res.status(404).json({message: "Not Found"});
-//         }
-//          res.status(200).json({message: "all posts", posts: posts})
-//      })
-//      .catch(err =>{
-//          res.status(404).json({message: err.message})
-//      })
-//  })
 
 //get a particular blog post with the given id
  router.get('/:id', (req, res)=>{
@@ -73,6 +60,21 @@ router.post('/', (req, res) => {
          res.status(404).json({message: err.message})
      })
  })
+//get blogs of a particular user
+ router.get('/:userId/blogs', (req, res)=>{
+    User.findById(req.params.userId)
+    .populate('blogs', 'title').exec()
+    .then(user => {
+        if(!user) {
+            res.status(404).json({message: 'no user found'})
+            return;
+        }
+        res.status(200).json({user})
+    })
+    .catch(err =>{
+        return res.status(500).json({message: err.message})
+    })
+})
  
 
  module.exports = router

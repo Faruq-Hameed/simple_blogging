@@ -1,11 +1,9 @@
-const express = require( "express")
 const mongoose = require( "mongoose");
-const {User, Blog, Comment} = require('../../model')
-const {doesNameOrEmailAlreadyExit, paginate, paginationError} = require ('../../controller')
-const router = express.Router()
+const {User, Blog, Comment} = require('../model')
+const {doesNameOrEmailAlreadyExit, paginate, paginationError} = require('../utils')
 
-
-router.post('/', (req, res)=>{
+/**create a new user */
+const createUser = async (req, res)=>{
     const mainThread = async () =>{
         const userExist = await doesNameOrEmailAlreadyExit(User, req)
         if(userExist){
@@ -24,10 +22,10 @@ router.post('/', (req, res)=>{
             })
     }
     mainThread()
-})
+}
 
-//search for user with user email or name 
-router.get('/', (req, res, next) => {
+/** search for a user with the user email or name */
+const findAUser = async (req, res, next) => {
     let query = Object.keys(req.query)
     if (query.length == 0 || req.query.limit || req.query.page) {
         next('route') //i.e if the user specifies no search query
@@ -52,9 +50,10 @@ router.get('/', (req, res, next) => {
             res.status(200).json({ user })
         })
 
-})
-//middleware that will be executed if the user specifies no search query
-router.get('/', (req, res)=>{ 
+}
+
+/**middleware that will be executed if the user specifies no search query*/
+const findUsers = async (req, res)=>{ 
     User.find({})
     .then(users => {
         const paginationErr = paginationError(users, req)
@@ -66,12 +65,14 @@ router.get('/', (req, res)=>{
 
         // res.status(200).json({message: "all users", users: users})
     })
-})
+}
 
-router.get('/:id', (req, res)=>{
+/**Get a user by id */
+const findUserById = async (req, res)=>{
     let showBlogs = req.query.showBlogs 
     User.findById(req.params.id)
-    .populate('blogs', 'title comments').exec()
+    .populate('blogs', 'title comments')
+    .exec()
     .then(user => {
         if(!user) {
             res.status(404).json({message: 'no user found'})
@@ -87,24 +88,10 @@ router.get('/:id', (req, res)=>{
     .catch(err =>{
         return res.status(500).json({message: err.message})
     })
-})
+}
 
-router.get('/:id/blogs', (req, res)=>{
-    User.findById(req.params.id)
-    .populate('blogs', 'title').exec()
-    .then(user => {
-        if(!user) {
-            res.status(404).json({message: 'no user found'})
-            return;
-        }
-        res.status(200).json({user})
-    })
-    .catch(err =>{
-        return res.status(500).json({message: err.message})
-    })
-})
-
-router.put('/:id', (req, res) => {
+/**update user information */
+const updateUserInfo = async(req, res) => {
     const newUserInfo = { name: req.body.name, email: req.body.email }
     User.findByIdAndUpdate(req.params.id, { $set: newUserInfo })
         .then(user => {
@@ -117,9 +104,10 @@ router.put('/:id', (req, res) => {
     .catch(err =>{
         return res.status(500).json({message: err.message})
     })
-})
+}
 
-router.delete('/:id', (req, res)=>{
+/**Delete a user account*/
+const deleteUser = async (req, res)=>{
     User.findByIdAndDelete(req.params.id)
     .then(user => {
         if(!user) {
@@ -131,7 +119,6 @@ router.delete('/:id', (req, res)=>{
     .catch(err =>{
         return res.status(500).json({message: err.message})
     })
-})
+}
 
-
-module.exports = router
+module.exports = userControllers = {createUser,findAUser,findUsers,findUserById,updateUserInfo,deleteUser}
