@@ -44,7 +44,7 @@ const findAUser = async (req, res, next) => {
     User.findOne(value)
         .then(user => {
             if (!user) { //incase null was returned
-                res.status(404).json({ message: 'no user with the value found' })
+                res.status(404).json({ message: `no user with the ${value} found` })
                 return
             }
             res.status(200).json({ user })
