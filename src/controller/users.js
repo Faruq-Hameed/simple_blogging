@@ -3,30 +3,27 @@ const {User, Blog, Comment} = require('../model')
 const {doesNameOrEmailAlreadyExit, paginate, paginationError} = require('../utils')
 
 /**create a new user */
-const createUser = async (req, res)=>{
-    const mainThread = async () =>{
-        const userExist = await doesNameOrEmailAlreadyExit(User, req)
-        if(userExist){
-            res.status(userExist.status).json({message: userExist.message})
-            return
-        }
-        //if the email and name are not existing in our User collection
-        User.create({
-            ...req.body
-        })
-            .then(user => {
-                res.status(200).json({ message: 'user created successfully', user: user })
-            })
-            .catch(err => {
-                res.status(404).json({ message: err.message })
-            })
+const createUser = async (req, res) => {
+  try {
+    const userExist = await doesNameOrEmailAlreadyExit(User, req);
+    if (userExist) {
+      res.status(userExist.status).json({ message: userExist.message });
+      return;
     }
-    mainThread()
-}
+    //if the email and name are not existing in our User collection
+   const user = await User.create({
+      ...req.body
+    });
+    res.status(200).json({ message: "user created successfully", user });
+  } catch (err) {
+    res.status(404).json({ message: err.message });
+  }
+};
 
 /** search for a user with the user email or name */
 const findAUser = async (req, res, next) => {
     let query = Object.keys(req.query)
+    let {id} = req.params
     if (query.length == 0 || req.query.limit || req.query.page) {
         next('route') //i.e if the user specifies no search query
         return
@@ -44,7 +41,7 @@ const findAUser = async (req, res, next) => {
     User.findOne(value)
         .then(user => {
             if (!user) { //incase null was returned
-                res.status(404).json({ message: `no user with the ${value} found` })
+                res.status(404).json({ message: `no user with the ${value} found` }) // neede woRKING
                 return
             }
             res.status(200).json({ user })
