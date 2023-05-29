@@ -13,8 +13,9 @@ const {
 /**create a new user */
 router.post('/',createUser ) 
 
-//search for user with user email or name 
-router.get('/', findAUser)
+//search for user with user id, email or name 
+router.get('/:id', findAUser)
+//search for user with user id, email or name 
 
 //middleware that will be executed if the user specifies no search query in the above route
 router.get('/', findUsers)

@@ -11,8 +11,8 @@ const createUser = async (req, res) => {
       return;
     }
     //if the email and name are not existing in our User collection
-   const user = await User.create({
-      ...req.body
+    const user = await User.create({
+      ...req.body,
     });
     res.status(200).json({ message: "user created successfully", user });
   } catch (err) {
@@ -22,43 +22,46 @@ const createUser = async (req, res) => {
 
 /** search for a user with the user email or name */
 const findAUser = async (req, res, next) => {
-    try{
-        let query = Object.keys(req.query)
-    const {email, name} = req.query //extract any available fields from the query
-    let {id} = req.params
-    if (query.length == 0 || req.query.limit || req.query.page) {
-        next('route') //i.e if the user specifies no search query
-        return
+  try {
+    const { email, name, limit } = req.query; //extract
+    if (!email || (!name && limit)) {
+      next("route"); //i.e if the user specifies no search query
+      return;
     }
-    if (req.query) {
-      //return the first truthy query and used to find the user
-      let value = email ? { email } : name ? { name } : id ? {id} : false;
-      if (!value) {
-        res.status(404).json({ message: "bad search query" }); // if provide query is not recognized
-        return;
-      }
+    let searchKey = email ? { email } : name ? { name } : false;
+    if (!searchKey) {
+      res.status(404).json({ message: "bad search query" }); // if provide query is not recognized
+      return;
     }
-    const user = await User.findOne(value)
-    res.status(200).json({message: "user found", user});
+    const user = User.findOne(searchKey);
+    if (!user) {
+      //incase null was returned
+      res
+        .status(404)
+        .json({
+          message: `no user with the ${
+            searchKey.email || searchKey.name
+          } found`,
+        });
+      return;
     }
-    catch (err){
-        res.status(500).json({message: err.message}); //internal error
-    }
+    res.status(200).json({ user });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
-}
-
-/**middleware that will be executed if the user specifies limit is specified in the query or no query at all*/
-const findUsers = async (req, res)=>{ 
+/**middleware that will be executed if the user specifies no search query*/
+const findUsers = async (req, res)=>{
+    const limit = req.query
     User.find({})
+    .limit(limit * 1) //to ensure that an integer is returned
     .then(users => {
-        const paginationErr = paginationError(users, req)
-        if(paginationErr){
-            res.status(paginationErr.status).json({message: paginationErr.message})
-            return;
+        if(users.length <= 0){
+            res.status(201).json({message: 'No users found at the moment'})
         }
-        return res.status(200).json(paginate(users, req, 'users'))
+        return res.status(200).json({users})
 
-        // res.status(200).json({message: "all users", users: users})
     })
 }
 
