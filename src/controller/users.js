@@ -61,14 +61,16 @@ const findUsers = async (req, res)=>{
             res.status(201).json({message: 'No users found at the moment'})
         }
         return res.status(200).json({users})
-
+    })
+    .catch(err => {
+        res.status(500).json({message: err.message})
     })
 }
 
 /**Get a user by id */
 const findUserById = async (req, res)=>{
     let showBlogs = req.query.showBlogs 
-    User.findById(req.params.id)
+    User.findOne({id: req.params.id})
     .populate('blogs', 'title comments')
     .exec()
     .then(user => {
