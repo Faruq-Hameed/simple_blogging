@@ -22,34 +22,32 @@ const createUser = async (req, res) => {
 
 /** search for a user with the user email or name */
 const findAUser = async (req, res, next) => {
-    let query = Object.keys(req.query)
+    try{
+        let query = Object.keys(req.query)
+    const {email, name} = req.query //extract any available fields from the query
     let {id} = req.params
     if (query.length == 0 || req.query.limit || req.query.page) {
         next('route') //i.e if the user specifies no search query
         return
     }
-    let value;
     if (req.query) {
-        value = (req.query.email)
-            ? { email: req.query.email } : (req.query.name)
-                ? { name: req.query.name } : false
-        if (!value) {
-            res.status(404).json({ message: 'bad search query' }) // if provide query is not recognized
-            return;
-        }
+      //return the first truthy query and used to find the user
+      let value = email ? { email } : name ? { name } : id ? {id} : false;
+      if (!value) {
+        res.status(404).json({ message: "bad search query" }); // if provide query is not recognized
+        return;
+      }
     }
-    User.findOne(value)
-        .then(user => {
-            if (!user) { //incase null was returned
-                res.status(404).json({ message: `no user with the ${value} found` }) // neede woRKING
-                return
-            }
-            res.status(200).json({ user })
-        })
+    const user = await User.findOne(value)
+    res.status(200).json({message: "user found", user});
+    }
+    catch (err){
+        res.status(500).json({message: err.message}); //internal error
+    }
 
 }
 
-/**middleware that will be executed if the user specifies no search query*/
+/**middleware that will be executed if the user specifies limit is specified in the query or no query at all*/
 const findUsers = async (req, res)=>{ 
     User.find({})
     .then(users => {
