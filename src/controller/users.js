@@ -51,47 +51,55 @@ const findAUser = async (req, res, next) => {
 };
 
 /**middleware that will be executed if the user specifies no search query*/
-const findUsers = async (req, res)=>{
-    const {limit} = req.query
+const findUsers = async (req, res) => {
+  try {
+    const { limit } = req.query;
     User.find({})
-    .limit( limit * 1) //to ensure that an integer is returned
-    // .populate('blogs', 'title comments')
-    // .exec()
-    .then(users => {
-        if(users.length <= 0){
-            res.status(200).json({message: 'No users found at the moment'})
-            return
+      .limit(limit * 1) //to ensure that an integer is returned
+      // .populate('blogs', 'title comments')
+      // .exec()
+      .then((users) => {
+        if (users.length <= 0) {
+          res.status(200).json({ message: "No users found at the moment" });
+          return;
         }
-         res.status(200).json({users})
-    })
-    .catch(err => {
-        res.status(500).json({message: err.message})
-    })
-}
+        res.status(200).json({ users });
+      });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 /**Get a user by id */
 const findUserById = async (req, res)=>{
-    let showBlogs = req.query.showBlogs 
-    const {id} = req.params
-    console.log({id})
-    User.findOne({id})
+    try{
+ let {showBlogs} = req.query 
+    const id = req.params.id
+        if (!mongoose.isValidObjectId(id)) { //if the is passed is not a momgoose objectId type
+          return res.status(422).json({ message: "invalid id format provided" });
+        }
+    User.findById(id)
     .populate('blogs', 'title comments')
-    .exec()
+    .exec() 
     .then(user => {
         if(!user) {
             res.status(404).json({message: 'no user found'})
             return;
         }
-        if (showBlogs === "false") {
+        if (!showBlogs) {
             const totalBlogs= user.blogs.length
             res.status(200).json({name: user.name, email: user.email, totalBlogs: totalBlogs})
             return
         }
         res.status(200).json({user})
     })
-    .catch(err =>{
+    }
+    catch (err) {
         return res.status(500).json({message: err.message})
-    })
+
+    }
+   
+    
 }
 
 /**update user information */
