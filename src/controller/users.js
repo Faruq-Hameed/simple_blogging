@@ -24,8 +24,8 @@ const createUser = async (req, res) => {
 const findAUser = async (req, res, next) => {
   try {
     const { email, name, limit } = req.query; //extract
-    if (!email || (!name && limit)) {
-      next("route"); //i.e if the user specifies no search query
+    if (!email || !name && limit) {
+      next(); //i.e if the user specifies no search query
       return;
     }
     let searchKey = email ? { email } : name ? { name } : false;
@@ -33,13 +33,12 @@ const findAUser = async (req, res, next) => {
       res.status(404).json({ message: "bad search query" }); // if provide query is not recognized
       return;
     }
-    const user = User.findOne(searchKey);
-    if (!user) {
-      //incase null was returned
+    const user = await User.findOne(searchKey);     
+    if (!user) { //incase null was returned i.e unknown email or name was provided
       res
         .status(404)
         .json({
-          message: `no user with the ${
+          message: `no user with info ${
             searchKey.email || searchKey.name
           } found`,
         });
@@ -53,14 +52,17 @@ const findAUser = async (req, res, next) => {
 
 /**middleware that will be executed if the user specifies no search query*/
 const findUsers = async (req, res)=>{
-    const limit = req.query
+    const {limit} = req.query
     User.find({})
-    .limit(limit * 1) //to ensure that an integer is returned
+    .limit( limit * 1) //to ensure that an integer is returned
+    // .populate('blogs', 'title comments')
+    // .exec()
     .then(users => {
         if(users.length <= 0){
-            res.status(201).json({message: 'No users found at the moment'})
+            res.status(200).json({message: 'No users found at the moment'})
+            return
         }
-        return res.status(200).json({users})
+         res.status(200).json({users})
     })
     .catch(err => {
         res.status(500).json({message: err.message})
@@ -70,7 +72,9 @@ const findUsers = async (req, res)=>{
 /**Get a user by id */
 const findUserById = async (req, res)=>{
     let showBlogs = req.query.showBlogs 
-    User.findOne({id: req.params.id})
+    const {id} = req.params
+    console.log({id})
+    User.findOne({id})
     .populate('blogs', 'title comments')
     .exec()
     .then(user => {
