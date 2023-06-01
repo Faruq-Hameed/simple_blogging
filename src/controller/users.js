@@ -103,28 +103,33 @@ const findUserById = async (req, res)=>{
 }
 
 /**update user information */
-const updateUserInfo = async(req, res) => {
-    const newUserInfo = { name, email } = req.body;
+const updateUserInfo = async (req, res) => {
+  try {
+    const newUserInfo = ({ name, email } = req.body);
     const { id } = req.params;
     const existingUser = await doesNameOrEmailAlreadyExit(User, req);
     if (
-      existingUser && existingUser.user._id.toString() !== id
+      existingUser &&
+      existingUser.user._id.toString() !== id //converted the objectId to string
     ) {
       res.status(existingUser.status).json({ message: existingUser.message });
       return;
-    } 
-    User.findByIdAndUpdate(id, { $set: newUserInfo })
-        .then(user => {
-            if (!user) {
-                res.status(404).json({ message: 'no user found' })
-            return;
-        }
-        res.status(200).json({message : "update successful"}) //needed to pass correct option so that updated information are returned
-    })
-    .catch(err =>{
-        return res.status(500).json({message: err.message})
-    })
-}
+    }
+    const user = await User.findByIdAndUpdate(
+      id,
+      { $set: newUserInfo },
+      { returnDocument: "after" }
+    );
+    if (!user) {
+      res.status(404).json({ message: "no user found" });
+      return;
+    }
+    res.status(200).json({ message: "update successful", user }); //needed to pass correct option so that updated information are returned
+  } 
+  catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
 
 /**Delete a user account*/
 const deleteUser = async (req, res)=>{
