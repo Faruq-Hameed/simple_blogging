@@ -4,29 +4,31 @@ const {validatedBlogSchema} = require('../utils')
 
 /** post a new blog */
 const createBlog = async (req, res) => {
-    const validation = validatedBlogSchema(req.body)
+  try {
+    const validation = validatedBlogSchema(req.body);
     if (validation.error) {
-        res.status(422).send(validation.error.details[0].message);
-        return;
+      res.status(422).send(validation.error.details[0].message);
+      return;
     }
-    User.findById(req.body.postedBy)
-        .then(user => {
-            if (!user) {
-                res.status(404).json({ message: 'unknown user' });
-                return
-            }
-            Blog.create({ ...req.body }) //create a new blog 
-                .then(blog => {
-                    //adding the new blog id to the user's blogs list
-                    user.blogs.push(blog._id)
-                    user.save()
-                    res.status(200).json({ message: 'blog created successfully', blog: blog })
-                })
-        })
-        .catch(err => {
-            res.status(500).json({ message: err.message })
-        })
-}
+    User.findById(req.body.postedBy).then((user) => {
+      if (!user) {
+        res.status(404).json({ message: "unknown user" });
+        return;
+      }
+      Blog.create({ ...req.body }) //create a new blog
+        .then((blog) => {
+          //adding the new blog id to the user's blogs list
+          user.blogs.push(blog._id);
+          user.save();
+          res
+            .status(200)
+            .json({ message: "blog created successfully", blog: blog });
+        });
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 /**Get all or some blogs controller */
 const getBlogs = async  (req, res)=>{
