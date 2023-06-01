@@ -1,11 +1,11 @@
 const doesNameOrEmailAlreadyExit = async (User,req) => {
-    const existingName = await User.findOne({ name: req.body.name.toLowerCase() }, {_id: 0, name: 1})
-    if (existingName) {
-        return {status: 409, message: `user with the name ${existingName.name} already exist`}
+    var user = await User.findOne({ name: req.body.name }, 'name email _id')
+    if (user) {
+        return {status: 409, message: `user with the name ${user.name} already exist`, user}
     }
-    const existingEmail = await User.findOne({ email: req.body.email.toLowerCase() }, {_id: 0, email: 1})
-    if (existingEmail) {
-        return {status: 409, message: `user with the email ${existingEmail.email} already exist`}
+    var user = await User.findOne({ email: req.body.email }, 'name email _id')
+    if (user) {
+        return {status: 409, message: `user with the email ${user.email} already exist`,user}
     }
 }
 

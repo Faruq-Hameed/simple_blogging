@@ -5,9 +5,9 @@ const {doesNameOrEmailAlreadyExit, paginate, paginationError} = require('../util
 /**create a new user */
 const createUser = async (req, res) => {
   try {
-    const userExist = await doesNameOrEmailAlreadyExit(User, req);
-    if (userExist) {
-      res.status(userExist.status).json({ message: userExist.message });
+    const existingUser = await doesNameOrEmailAlreadyExit(User, req);
+    if (existingUser) {
+      res.status(existingUser.status).json({ message: existingUser.message });
       return;
     }
     //if the email and name are not existing in our User collection
@@ -104,8 +104,16 @@ const findUserById = async (req, res)=>{
 
 /**update user information */
 const updateUserInfo = async(req, res) => {
-    const newUserInfo = { name: req.body.name, email: req.body.email }
-    User.findByIdAndUpdate(req.params.id, { $set: newUserInfo })
+    const newUserInfo = { name, email } = req.body;
+    const { id } = req.params;
+    const existingUser = await doesNameOrEmailAlreadyExit(User, req);
+    if (
+      existingUser && existingUser.user._id.toString() !== id
+    ) {
+      res.status(existingUser.status).json({ message: existingUser.message });
+      return;
+    } 
+    User.findByIdAndUpdate(id, { $set: newUserInfo })
         .then(user => {
             if (!user) {
                 res.status(404).json({ message: 'no user found' })
