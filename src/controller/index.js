@@ -1,4 +1,4 @@
 const users = require('./users')
 // const blogs = require('./blogs')
-
-module.exports = {users}
+const blogControllers = require('./blogs')
+module.exports = {users, blogControllers}

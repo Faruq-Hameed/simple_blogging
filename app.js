@@ -3,7 +3,8 @@ const mongoose = require( "mongoose");
 const morgan = require('morgan');
 const helmet = require('helmet');
 require('dotenv').config({path: './.env'})
-const {userRouter} = require ('./routes')
+const {userRouters} = require ('./routes')
+const {blogRouters} = require ('./routes')
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -22,8 +23,9 @@ app.use(morgan(":method :url :status :res[content-length] - :response-time ms - 
 app.use(helmet())
 
 //router level middlewares usage
-app.use('/users', userRouter )
-// app.use('/blogs', blogs )
+app.use('/users', userRouters )
+app.use('/blogs', blogRouters )
+
 
 
 
