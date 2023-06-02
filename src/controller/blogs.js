@@ -34,7 +34,7 @@ const getBlogs = async (req, res) => {
   try {
     const { limit } = req.query;
     const blogs = await Blog.find()
-    .limit(limit * 1)
+    .limit(limit * 1) //to ensure an integer is returned
     .populate('postedBy', {_id: 0, name: 1, email: 1})
     .exec()
     if( blogs.length < 0 ) {
@@ -43,39 +43,55 @@ const getBlogs = async (req, res) => {
     }
     res.status(200).send(blogs);
   } catch (err) {
-    res.status(404).json({ message: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
 /**Get a blog with the given id */
-const findBlogById = async (req, res)=>{
-    Blog.findById(req.params.id)
-    .populate("postedBy", 'name').exec() //only the name of the author should be displayed
-     .then(posts => {
-        if(!posts){
-            return res.status(404).json({message: "Not Found"});
-        }
-         res.status(200).json({posts})
-     })
-     .catch(err =>{
-         res.status(404).json({message: err.message})
-     })
- }
+const findBlogById = async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id)
+      .populate("postedBy", { _id: 0, name: 1, email: 1 })
+      .exec(); //only the name and email of the author should be displayed
+    if (!blog) {
+      return res.status(404).json({ message: "Not Found" });
+    }
+    res.status(200).json({ blog });
+  } catch (err) {
+    res.status(404).json({ message: err.message });
+  }
+};
 
 /**Get blogs of a particular u */
-const getUserBlogs = async  (req, res)=>{
-    User.findById(req.params.userId)
-    .populate('blogs', 'title').exec()
-    .then(user => {
-        if(!user) {
-            res.status(404).json({message: 'no user found'})
-            return;
-        }
-        res.status(200).json({user})
-    })
-    .catch(err =>{
-        return res.status(500).json({message: err.message})
-    })
-}
+const getUserBlogs = async (req, res) => {
+  try {
+    const { limit } = req.query;
+    const user = await User.findById(req.params.userId)
+      .populate({ path: "blogs", select: "title", limit: limit * 1 }) //to ensure an integer is used as limit
+      .exec();
+    if (!user) {
+      res.status(404).json({ message: "no user found" });
+      return;
+    }
+    res.status(200).json({ user });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+/**Delete a blog post */
+const deleteBlog = async (req, res) => {
+    try {
+      const blog = await Blog.findById(req.params.id)
+        .populate("postedBy", { _id: 0, name: 1, email: 1 })
+        .exec(); //only the name and email of the author should be displayed
+      if (!blog) {
+        return res.status(404).json({ message: "Not Found" });
+      }
+      res.status(200).json({ blog });
+    } catch (err) {
+      res.status(404).json({ message: err.message });
+    }
+  };
 
 module.exports = {createBlog,getBlogs,findBlogById,getUserBlogs}
