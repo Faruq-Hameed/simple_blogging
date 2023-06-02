@@ -71,36 +71,39 @@ const findUsers = async (req, res) => {
 };
 
 /**Get a user by id */
-const findUserById = async (req, res)=>{
-    try{
- let {showBlogs} = req.query 
-    const id = req.params.id
-        if (!mongoose.isValidObjectId(id)) { //if the is passed is not a momgoose objectId type
-          return res.status(422).json({ message: "invalid id format provided" });
-        }
+const findUserById = async (req, res) => {
+  try {
+    let { showBlogs } = req.query;
+    const id = req.params.id;
+    if (!mongoose.isValidObjectId(id)) {
+      //if the is passed is not a mongoose objectId type
+      return res.status(422).json({ message: "invalid id format provided" });
+    }
     User.findById(id)
-    .populate('blogs', 'title comments')
-    .exec() 
-    .then(user => {
-        if(!user) {
-            res.status(404).json({message: 'no user found'})
-            return;
+      .populate("blogs", "title comments")
+      .exec()
+      .then((user) => {
+        if (!user) {
+          res.status(404).json({ message: "no user found" });
+          return;
         }
         if (!showBlogs) {
-            const totalBlogs= user.blogs.length
-            res.status(200).json({name: user.name, email: user.email, totalBlogs: totalBlogs})
-            return
+          const totalBlogs = user.blogs.length;
+          res
+            .status(200)
+            .json({
+              name: user.name,
+              email: user.email,
+              totalBlogs: totalBlogs,
+            });
+          return;
         }
-        res.status(200).json({user})
-    })
-    }
-    catch (err) {
-        return res.status(500).json({message: err.message})
-
-    }
-   
-    
-}
+        res.status(200).json({ user });
+      });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
 
 /**update user information */
 const updateUserInfo = async (req, res) => {
@@ -132,18 +135,19 @@ const updateUserInfo = async (req, res) => {
 };
 
 /**Delete a user account*/
-const deleteUser = async (req, res)=>{
-    User.findByIdAndDelete(req.params.id)
-    .then(user => {
-        if(!user) {
-            res.status(404).json({message: 'no user found'})
-            return;
-        }
-        res.status(200).json({message: 'user account deleted successfully'})
-    })
-    .catch(err =>{
-        return res.status(500).json({message: err.message})
-    })
-}
+const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      res.status(404).json({ message: "no user found" });
+      return;
+    }
+    await Blog.deleteMany({ postedBy: user._id });// delete all blog posts of the user
+    await Comment.deleteMany({ user: user._id});
+    res.status(200).json({ message: "user account and posts deleted successfully" });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
 
 module.exports = userControllers = {createUser,findAUser,findUsers,findUserById,updateUserInfo,deleteUser}
