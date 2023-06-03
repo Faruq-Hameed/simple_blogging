@@ -79,19 +79,24 @@ const getUserBlogs = async (req, res) => {
   }
 };
 
+
 /**Delete a blog post */
 const deleteBlog = async (req, res) => {
     try {
-      const blog = await Blog.findById(req.params.id)
-        .populate("postedBy", { _id: 0, name: 1, email: 1 })
-        .exec(); //only the name and email of the author should be displayed
+      const blog = await Blog.findByIdAndDelete(req.params.id)
       if (!blog) {
         return res.status(404).json({ message: "Not Found" });
       }
+      const userId = blog.postedBy
+      const blogId = blog._id;
+      //remove the blog from the user blog list
+      await User.findByIdAndUpdate(userId, {
+        $pull: { blogs: { $in: blogId } }
+      });
       res.status(200).json({ blog });
     } catch (err) {
       res.status(404).json({ message: err.message });
     }
   };
 
-module.exports = {createBlog,getBlogs,findBlogById,getUserBlogs}
+module.exports = {createBlog,getBlogs,findBlogById,getUserBlogs,deleteBlog}

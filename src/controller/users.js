@@ -142,7 +142,8 @@ const deleteUser = async (req, res) => {
       res.status(404).json({ message: "no user found" });
       return;
     }
-    await Blog.deleteMany({ postedBy: user._id });// delete all blog posts of the user
+    // delete the user's blog posts and comments
+    await Blog.deleteMany({ postedBy: user._id });
     await Comment.deleteMany({ user: user._id});
     res.status(200).json({ message: "user account and posts deleted successfully" });
   } catch (err) {
