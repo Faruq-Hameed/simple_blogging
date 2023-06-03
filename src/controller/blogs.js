@@ -79,6 +79,22 @@ const getUserBlogs = async (req, res) => {
   }
 };
 
+/**Get a blog with the given id */
+const updateBlog = async (req, res) => {
+    try {
+      const blog = await Blog.findByIdAndUpdate(req.params.id,
+        {body: req.body.body}
+        )
+        .populate("postedBy", { _id: 0, name: 1, email: 1 })
+        .exec(); //only the name and email of the author should be displayed
+      if (!blog) {
+        return res.status(404).json({ message: "Not Found" });
+      }
+      res.status(200).json({ blog });
+    } catch (err) {
+      res.status(404).json({ message: err.message });
+    }
+  };
 
 /**Delete a blog post */
 const deleteBlog = async (req, res) => {

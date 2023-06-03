@@ -8,7 +8,6 @@ router.post('/', createBlog)
 // get all blog posts
  router.get('/',getBlogs)
  
-
 //get a particular blog post with the given id
  router.get('/:id', findBlogById)
 
