@@ -23,13 +23,14 @@ const createComment = async (req, res) => {
       }
 
        //create a new comment
-      const commentId = (await Comment.create({ ...req.body }))._id    
+      const comment = (await Comment.create({ ...req.body }))._id    
       //fetch the blog the user wants to comment on and add the commentId to the comment lists
-    const blog = await Blog.findByIdAndUpdate(blogId, {$push: {comments: commentId}})
+    const blog = await Blog.findByIdAndUpdate(blogId, {$push: {comments: comment._id}})
+
+    /////TO BE WORKED ON LATER
     // .limit(4) //only show the first 4 comments + the new comment the user just added
     // .populate(blog)
     // .populate(blog)
-  
       res.status(200).json({ message: "comment created successfully", comment });
     } 
     catch (err) {
@@ -37,7 +38,7 @@ const createComment = async (req, res) => {
     }
   };
   
-  /**Get all or some comments controller */
+  /**Get all or some comments for a blog controller */ //YET TO BE WORKED ON
   const getBlogs = async (req, res) => {
     try {
       const { limit } = req.query;
@@ -56,71 +57,58 @@ const createComment = async (req, res) => {
   };
   
   /**Get a blog with the given id */
-  const findBlogById = async (req, res) => {
+  const findCommentById = async (req, res) => {
     try {
-      const blog = await Blog.findById(req.params.id)
-        .populate("postedBy", { _id: 0, name: 1, email: 1 })
-        .exec(); //only the name and email of the author should be displayed
-      if (!blog) {
+      const comment = await Comment.findById(req.params.id)
+        .populate("user", { _id: 0, name: 1, email: 1 })
+        .populate("blog", 'title body')//only the body and title of the blog should be displayed
+        .exec(); 
+      if (!comment) {
         return res.status(404).json({ message: "Not Found" });
       }
-      res.status(200).json({ blog });
+      res.status(200).json({ comment }); //BLOG SHOULD BE RETURNED WITH THE COMMENT INSTEAD
     } catch (err) {
       res.status(404).json({ message: err.message });
     }
   };
   
-  /**Get blogs of a particular u */
-  const getUserBlogs = async (req, res) => {
+  /**Get a COMMENT with the given id */
+  const updateComment = async (req, res) => {
     try {
-      const { limit } = req.query;
-      const user = await User.findById(req.params.userId)
-        .populate({ path: "blogs", select: "title", limit: limit * 1 }) //to ensure an integer is used as limit
+      const comment = await Comment.findByIdAndUpdate(
+        req.params.id,
+        { body: req.body.body },
+        { returnDocument: "after" }
+      )
+        .populate("user", { _id: 0, name: 1, email: 1 })
+        .populate("blog", "title body") //only the body and title of the blog should be displayed
         .exec();
-      if (!user) {
-        res.status(404).json({ message: "no user found" });
-        return;
+      if (!comment) {
+        return res.status(404).json({ message: "Not Found" });
       }
-      res.status(200).json({ user });
+      res.status(200).json({ comment }); //BLOG SHOULD BE RETURNED WITH THE COMMENT INSTEAD
     } catch (err) {
-      return res.status(500).json({ message: err.message });
+      res.status(404).json({ message: err.message });
     }
   };
   
-  /**Get a blog with the given id */
-  const updateBlog = async (req, res) => {
+  /**Delete a comment post */
+  const deleteComment = async (req, res) => {
       try {
-        const blog = await Blog.findByIdAndUpdate(req.params.id,
-          {body: req.body.body}
-          )
-          .populate("postedBy", { _id: 0, name: 1, email: 1 })
-          .exec(); //only the name and email of the author should be displayed
-        if (!blog) {
+        const comment = await Comment.findByIdAndDelete(req.params.id)
+        if (!comment) {
           return res.status(404).json({ message: "Not Found" });
         }
-        res.status(200).json({ blog });
-      } catch (err) {
-        res.status(404).json({ message: err.message });
-      }
-    };
-  
-  /**Delete a blog post */
-  const deleteBlog = async (req, res) => {
-      try {
-        const blog = await Blog.findByIdAndDelete(req.params.id)
-        if (!blog) {
-          return res.status(404).json({ message: "Not Found" });
-        }
-        const userId = blog.postedBy
-        const blogId = blog._id;
-        //remove the blog from the user blog list
-        await User.findByIdAndUpdate(userId, {
-          $pull: { blogs: { $in: blogId } }
+        const commentId = comment.user
+        const blogId = comment.blog;
+        //remove the comment from the blog comment list
+        await Blog.findByIdAndUpdate(blogId, {
+          $pull: { blogs: { $in: commentId } }
         });
-        res.status(200).json({ blog });
+        res.status(200).json({ message: "comment deleted successfully" });
       } catch (err) {
         res.status(404).json({ message: err.message });
       }
     };
   
-  module.exports = {createBlog,getBlogs,findBlogById,getUserBlogs,deleteBlog}
+  module.exports = {createComment,findCommentById,updateComment,deleteComment}
