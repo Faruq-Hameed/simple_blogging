@@ -12,17 +12,23 @@ const createComment = async (req, res) => {
         res.status(422).send(validation.error.details[0].message);
         return;
       }
-      //fetch the user making the comment post creation request
-      const {user,blog} = validation.value
-      const user = await User.findById(req.body.postedBy);
+      const blogId =validation.value.blog
+      const userId = validation.value.user
+
+      //fetch the user making the comment creation request 
+      const user = await User.findById(userId);
       if (!user) {
         res.status(404).json({ message: "unknown user" });
         return;
       }
-      //create a new comment
-      const comment = await comment.create({ ...req.body });        
-      user.comments.push(comment._id); //adding the new comment id to the user's comments list
-      user.save();
+
+       //create a new comment
+      const commentId = (await Comment.create({ ...req.body }))._id    
+      //fetch the blog the user wants to comment on and add the commentId to the comment lists
+    const blog = await Blog.findByIdAndUpdate(blogId, {$push: {comments: commentId}})
+    // .limit(4) //only show the first 4 comments + the new comment the user just added
+    // .populate(blog)
+    // .populate(blog)
   
       res.status(200).json({ message: "comment created successfully", comment });
     } 
