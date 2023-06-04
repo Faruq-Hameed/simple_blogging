@@ -24,3 +24,21 @@
 
 - delete a user account : DELETE : [http://localhost:3030/users/:user_id](http://localhost:3030/users/:user_id)
 
+#### Note the delete request will also delete all comments and blog posts made to the user
+
+
+## blogs
+
+- Get all blogs route: GET:  [http://localhost:3030/blogs/](http://localhost:3030/blogs/)
+
+- Get some blogs with the provided value for the limit blogs route: GET:  [http://localhost:3030/blogs/?limit=limit](http://localhost:3030/blogs/?limit=limit)
+
+- Get a blog by id : GET : [http://localhost:3030/blogs/:blog_id](http://localhost:3030/blogs/:blog_id)
+
+- create a new blog : POST : [http://localhost:3030/blogs/](http://localhost:3030/blogs/)
+
+- update blog information : PUT : [http://localhost:3030/blogs/:blog_id](http://localhost:3030/blogs/:blog_id)
+
+- delete a blog account : DELETE : [http://localhost:3030/blogs/:blog_id](http://localhost:3030/blogs/:blog_id)
+
+#### Note the delete request will also delete all comments made to the blog
