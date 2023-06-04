@@ -5,7 +5,6 @@ const {createComment,findCommentById,updateComment,deleteComment} =
 //create Comment
 router.post('/', createComment) 
  
- 
 //get a particular Comment post with the given id
  router.get('/:id', findCommentById)
 
@@ -16,7 +15,7 @@ router.put('/:id', updateComment)
 router.delete('/:id', deleteComment)
 
 //get Comments of a particular user
- router.get('/:userId/Comments',getUserComments)
+//  router.get('/:userId/Comments',getUserComments)
  
 
  module.exports = router

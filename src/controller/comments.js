@@ -23,7 +23,7 @@ const createComment = async (req, res) => {
       }
 
        //create a new comment
-      const comment = (await Comment.create({ ...req.body }))._id    
+      const comment = (await Comment.create({ ...req.body }))  
       //fetch the blog the user wants to comment on and add the commentId to the comment lists
     const blog = await Blog.findByIdAndUpdate(blogId, {$push: {comments: comment._id}})
 

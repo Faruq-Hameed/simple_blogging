@@ -5,6 +5,7 @@ const helmet = require('helmet');
 require('dotenv').config({path: './.env'})
 const {userRouters} = require ('./routes')
 const {blogRouters} = require ('./routes')
+const {commentRouters} = require ('./routes')
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -25,6 +26,7 @@ app.use(helmet())
 //router level middlewares usage
 app.use('/users', userRouters )
 app.use('/blogs', blogRouters )
+app.use('/comments/', commentRouters )
 
 
 
