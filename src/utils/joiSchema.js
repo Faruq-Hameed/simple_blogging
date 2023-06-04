@@ -10,4 +10,14 @@ function validatedBlogSchema(data) {
     return blogSchema.validate(data)
 }
 
-module.exports = {validatedBlogSchema}
+function validatedCommentSchema(data) {
+    const commentSchema = joi.object({
+        user: joi.string().min(6).max(30).required(),
+        blog: joi.string().min(6).max(30).required(),
+        body: joi.string().min(6).max(1000).required(),
+    })
+
+    return commentSchema.validate(data)
+}
+
+module.exports = {validatedBlogSchema,validatedCommentSchema}
