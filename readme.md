@@ -46,7 +46,6 @@
 
 ## Comments
 
-
 - Get a comment by id : GET : [http://localhost:3030/comments/:comment_id](http://localhost:3030/comments/:comment_id)
 
 - create a new comment on a post: POST : [http://localhost:3030/comments/](http://localhost:3030/comments/)
