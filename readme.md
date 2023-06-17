@@ -18,6 +18,7 @@
 
 <br> <h4> Note that name or email must be provided for the above get requests
 
+- Get signUp form : GET : [http://localhost:3030/users/signup](http://localhost:3030/users/signup)
 - create a new user : POST : [http://localhost:3030/users/](http://localhost:3030/users/)
 
 - update user information : PUT : [http://localhost:3030/users/:user_id](http://localhost:3030/users/:user_id)
