@@ -2,6 +2,28 @@ const mongoose = require( "mongoose");
 const {User, Blog, Comment} = require('../model')
 const {doesNameOrEmailAlreadyExit, paginate, paginationError} = require('../utils')
 
+
+// Handling get request
+const getForm = (req, res) => {
+  // Rendering your form
+  res.render("signUp_form");
+};
+
+// Handling data after submission of form
+const submitFeedBack = async (req, res) => {
+  try {
+    const feedData = new feedModel({
+      name: req.body.name,
+      email: req.body.email,
+    });
+    feedData.save().then((data) => {
+      res.render("signUp_form", { msg: "Your signUp successfully saved." });
+    });
+  } catch (err) {
+    res.render("signUp_form", { msg: "Check Details." });
+  } 
+};
+
 /**create a new user */
 const createUser = async (req, res) => {
   try {
@@ -151,4 +173,4 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = userControllers = {createUser,findAUser,findUsers,findUserById,updateUserInfo,deleteUser}
+module.exports = userControllers = {createUser,findAUser,findUsers,findUserById,updateUserInfo,deleteUser,getForm}

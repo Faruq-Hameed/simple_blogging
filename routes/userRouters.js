@@ -8,7 +8,11 @@ const {
   findUserById,
   updateUserInfo,
   deleteUser,
+  getForm
 } = require("../src/controller").users;
+
+/**Get signup form */
+router.get('/signup',getForm)
 
 /**create a new user */
 router.post('/',createUser ) 
