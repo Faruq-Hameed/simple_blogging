@@ -22,7 +22,6 @@ mongoose.connect(process.env.MONGODB_URL + '/populate')
     })
     .catch(err => { console.log(err.message) })
 
-
 //necessary middlewares using global level middlewares
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
