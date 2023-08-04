@@ -34,7 +34,6 @@ app.use('/static', express.static('static'));
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
-
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms - :remote-user :date"))
 app.use(helmet()) //security for response header
 
