@@ -43,8 +43,6 @@ app.use('/blogs', blogRouters )
 app.use('/comments/', commentRouters )
 
 
-
-
 //invalid url global middleware
 app.use(function (req, res, next) {
     res.status(404).send("invalid url")
