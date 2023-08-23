@@ -6,6 +6,7 @@
 
 ## Users
 
+
 - Get all users route: GET:  [http://localhost:3030/users/](http://localhost:3030/users/)
 
 - Get some users with the provided value for the limit users route: GET:  [http://localhost:3030/users/?limit=limit](http://localhost:3030/users/?limit=limit)
