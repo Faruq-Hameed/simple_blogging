@@ -2,7 +2,7 @@ const express = require( "express")
 const mongoose = require( "mongoose");
 const morgan = require('morgan');
 const helmet = require('helmet');
-// Require path module
+// Require path modules
 const path = require('path');
 // Require pug template engine
 const pug = require("pug");
